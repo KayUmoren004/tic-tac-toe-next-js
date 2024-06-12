@@ -104,10 +104,9 @@ const CreateGame = ({ setOpen }: { setOpen: any }) => {
         <Button
           type="submit"
           form="form-mode"
-          disabled={!isDirty || !isValid}
+          disabled={!isDirty && !isValid}
           onClick={async () => {
             if (codeGenerated) {
-              setOpen(false);
               const code = getValues("code");
               await createRoom(code, getValues("username"));
               push(
@@ -116,7 +115,7 @@ const CreateGame = ({ setOpen }: { setOpen: any }) => {
                 )}&code=${getValues("code")}`
               );
 
-              // Create Firebase room
+              setOpen(false);
             } else {
               const code = createCode();
               setValue("code", code);

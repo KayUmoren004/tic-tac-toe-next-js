@@ -1,3 +1,12 @@
+"use client";
+
+import { GameState, useFirebase } from "@/hooks/useFirebase";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import GameHeader from "./components/game-header";
+import GameFooter from "./components/game-footer";
+import MultiBoard from "@/components/game/ultimate/multi-board";
+
 const Game = ({
   params: { code },
 }: {
@@ -5,10 +14,21 @@ const Game = ({
     code: string;
   };
 }) => {
+  const qParams = useSearchParams();
+  const name = qParams.get("username");
+
   return (
-    <div>
-      <h1>Game - {code}</h1>
-    </div>
+    <>
+      {/* <GameHeader state={game} /> */}
+      <div className="h-full w-full flex flex-col items-center justify-center">
+        <div className="flex flex-row gap-4 mb-10">
+          <p className="text-white">Game - {code}</p>
+          <p className="text-white">User - {name}</p>
+        </div>
+        <MultiBoard code={code} />
+      </div>
+      <GameFooter state={null} />
+    </>
   );
 };
 

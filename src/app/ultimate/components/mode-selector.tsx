@@ -45,12 +45,12 @@ type FormValues = {
   code: string | null;
 };
 
-const initialValues: FormValues = {
-  username: "",
-  code: null,
-};
-
 const ModeButton = ({ label, navigate }: ModeType) => {
+  const initialValues: FormValues = {
+    username: localStorage.getItem("username") ?? "",
+    code: null,
+  };
+
   const methods = useForm<FormValues>({
     defaultValues: initialValues,
     mode: "onChange",
@@ -60,7 +60,7 @@ const ModeButton = ({ label, navigate }: ModeType) => {
     // Save username to local storage
     localStorage.setItem("username", data.username);
 
-    // console.log(data);
+    console.log(data);
   };
 
   // States
@@ -84,20 +84,6 @@ const ModeButton = ({ label, navigate }: ModeType) => {
               {label}
             </Button>
           </DialogTrigger>
-          {/* <DialogContent>
-            <Tabs defaultValue="create" className="w-full">
-              <TabsList>
-                <TabsTrigger value="create">Create Game</TabsTrigger>
-                <TabsTrigger value="join">Join Game</TabsTrigger>
-              </TabsList>
-              <TabsContent value="create">
-                <CreateGame setOpen={setOpen} />
-              </TabsContent>
-              <TabsContent value="join">
-                <JoinGame setOpen={setOpen} />
-              </TabsContent>
-            </Tabs>
-          </DialogContent> */}
           <DialogContent>
             <Tabs defaultValue="create" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mt-4">

@@ -4,10 +4,11 @@ export type Player = {
 };
 
 export type Cell = {
-  uid?: number;
+  uid: number;
   value: "X" | "O" | null;
   enabled?: boolean;
   textColor?: string;
+  type: "small" | "big";
 };
 
 export type SmallBoard = {

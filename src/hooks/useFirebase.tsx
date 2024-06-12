@@ -8,6 +8,7 @@ import {
   DocumentReference,
   SetOptions,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 const db = getFirestore(firebase);
@@ -19,7 +20,7 @@ type Player = {
 
 type PlayerMoves = number[];
 
-type GameState = {
+export type GameState = {
   players: Player[];
   mini_moves: {
     [key: string]: PlayerMoves | null;
@@ -133,5 +134,23 @@ export const useFirebase = () => {
     }
   };
 
-  return { createRoom, joinRoom };
+  // Listen to room changes
+  const roomChanges = (
+    code: string | null,
+    callback: (data: GameState | null | undefined) => void
+  ) => {
+    if (!code) return;
+
+    const roomRef = doc(db, "rooms", code);
+    const unsubscribe = onSnapshot(roomRef, (doc) => {
+      const roomData = doc.data() as GameState;
+      // console.log("Current data: ", roomData);
+
+      callback(roomData);
+    });
+
+    return unsubscribe;
+  };
+
+  return { createRoom, joinRoom, roomChanges };
 };

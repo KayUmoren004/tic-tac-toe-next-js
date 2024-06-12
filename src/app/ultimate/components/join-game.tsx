@@ -17,7 +17,7 @@ import { useFormContext } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { useFirebase } from "@/hooks/useFirebase";
 
-const CreateGame = ({ setOpen }: { setOpen: any }) => {
+const JoinGame = ({ setOpen }: { setOpen: any }) => {
   const { push } = useRouter();
 
   const {
@@ -30,8 +30,6 @@ const CreateGame = ({ setOpen }: { setOpen: any }) => {
   } = useFormContext();
 
   const { joinRoom } = useFirebase();
-
-  const codeGenerated = watch("code");
 
   // On Mount get username from local storage
   if (!getValues("username")) {
@@ -102,28 +100,21 @@ const CreateGame = ({ setOpen }: { setOpen: any }) => {
           form="form-mode"
           disabled={!isDirty || !isValid}
           onClick={async () => {
-            if (codeGenerated) {
-              setOpen(false);
-              const code = getValues("code");
-              await joinRoom(code, getValues("username"));
-              push(
-                `/ultimate/play?username=${getValues(
-                  "username"
-                )}&code=${getValues("code")}`
-              );
+            await joinRoom(getValues("code"), getValues("username"));
+            push(
+              `/ultimate/play/${getValues("code")}?username=${getValues(
+                "username"
+              )}`
+            );
 
-              // Create Firebase room
-            } else {
-              const code = createCode();
-              setValue("code", code);
-            }
+            setOpen(false);
           }}
         >
-          {codeGenerated ? "Join game" : "Generate code"}
+          Join game
         </Button>
       </div>
     </div>
   );
 };
 
-export default CreateGame;
+export default JoinGame;

@@ -3,28 +3,26 @@ import {
   type SmallBoard as SmallBoardType,
 } from "@/lib/types/game";
 import Cell from "./cell";
+import { useFirebase } from "@/hooks/useFirebase";
 
 const SmallBoard = ({
   cells,
   winner,
 }: {
   cells: SmallBoardType["cells"];
-  winner: SmallBoardType["winner"];
+  winner: SmallBoardType["winner"] | null;
 }) => {
   return (
-    <div className="">
-      {cells.map((cell, index) => (
-        <Cell
-          key={index}
-          cell={{
-            uid: index,
-            ...cell,
-          }}
-          onClick={() => {
-            console.log("Cell" + index);
-          }}
-        />
-      ))}
+    <div className="grid grid-cols-3 bg-black">
+      {cells.map((cell, index) => {
+        const cellDetails = {
+          ...cell,
+          uid: index,
+        };
+        return <Cell key={index} cell={cellDetails} />;
+      })}
     </div>
   );
 };
+
+export default SmallBoard;

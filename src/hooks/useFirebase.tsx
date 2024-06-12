@@ -1,4 +1,5 @@
 // import { GameState } from "@/lib/types/game";
+import { Cell } from "@/lib/types/game";
 import firebase from "../lib/firebase/config";
 import {
   getFirestore,
@@ -9,6 +10,7 @@ import {
   SetOptions,
   getDoc,
   onSnapshot,
+  updateDoc,
 } from "firebase/firestore";
 
 const db = getFirestore(firebase);
@@ -23,16 +25,19 @@ type PlayerMoves = number[];
 export type GameState = {
   players: Player[];
   mini_moves: {
-    [key: string]: PlayerMoves | null;
+    X?: Cell[] | undefined;
+    O?: Cell[] | undefined;
   } | null;
   big_moves: {
-    [key: string]: Player["symbol"] | null;
+    X?: Cell[] | undefined;
+    O?: Cell[] | undefined;
   } | null;
   gameID?: string | null;
   currentPlayer: Player["symbol"];
   boardDisabled: boolean;
   winner?: Player["symbol"] | "Tie" | null;
   id: string;
+  nextBigCell: string | number | null;
 };
 
 // Generate Random Room ID (4 numbers and 1 letter)
@@ -100,6 +105,7 @@ export const useFirebase = () => {
       boardDisabled: false,
       winner: null,
       gameID: `${generateRoomID()}-${generateRoomID()}`,
+      nextBigCell: null,
     };
 
     try {
@@ -115,20 +121,24 @@ export const useFirebase = () => {
 
     try {
       const roomRef = doc(db, "rooms", code);
-      const roomSnap = await getDoc(roomRef);
+      await updateDoc(roomRef, {
+        "players.1.name": username,
+        boardDisabled: false,
+      });
+      // const roomSnap = await getDoc(roomRef);
 
-      if (!roomSnap.exists()) {
-        console.log("Room does not exist!");
-        return;
-      }
+      // if (!roomSnap.exists()) {
+      //   console.log("Room does not exist!");
+      //   return;
+      // }
 
-      const roomData = roomSnap.data() as GameState;
+      // const roomData = roomSnap.data() as GameState;
 
-      // Update Player 2
-      roomData.players[1].name = username;
+      // // Update Player 2
+      // roomData.players[1].name = username;
 
-      // Update Room Data
-      await setDoc(roomRef, roomData);
+      // // Update Room Data
+      // await setDoc(roomRef, roomData);
     } catch (e: any) {
       console.log("Error @useFirebase.joinRoom: ", e?.message);
     }
@@ -152,5 +162,29 @@ export const useFirebase = () => {
     return unsubscribe;
   };
 
-  return { createRoom, joinRoom, roomChanges };
+  // Send Move to Firebase
+  const sendMove = async (
+    code: string | null,
+    bigCell: Cell | null | undefined,
+    smallCell: Cell
+  ) => {
+    if (!code) return;
+
+    console.log("Sending Move: ", bigCell, smallCell);
+
+    const roomRef = doc(db, "rooms", code);
+
+    await updateDoc(roomRef, {
+      mini_moves: {
+        [String(smallCell.value)]: smallCell,
+      },
+      big_moves: {
+        [String(bigCell?.value)]: bigCell,
+      },
+      currentPlayer: bigCell?.value === "X" ? "O" : "X",
+      nextBigCell: smallCell.uid,
+    });
+  };
+
+  return { createRoom, joinRoom, roomChanges, sendMove };
 };

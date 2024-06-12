@@ -4,11 +4,12 @@ export type Player = {
 };
 
 export type Cell = {
-  uid: number;
+  uid: string | number;
   value: "X" | "O" | null;
   enabled?: boolean;
   textColor?: string;
   type: "small" | "big";
+  onClick?: (bigCell?: Cell) => Promise<void>;
 };
 
 export type SmallBoard = {
